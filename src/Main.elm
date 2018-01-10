@@ -6,6 +6,7 @@ import Element
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Polygon
 import Random exposing (Generator)
 import Random.Color
 import Random.Extra
@@ -18,9 +19,9 @@ import Exts.Float
 
 
 type alias Model =
-    { fittest : List Polygon
+    { fittest : Image
     , fittestFitness : Float
-    , candidate : List Polygon
+    , candidate : Image
     , candidateFitness : Float
     , iterations : Int
     , imageDataForUploadedImage : List Int
@@ -30,10 +31,8 @@ type alias Model =
     }
 
 
-type alias Polygon =
-    { vertices : List ( Float, Float )
-    , color : Color
-    }
+type alias Image =
+    List Polygon
 
 
 numberOfPolygons : Int
@@ -75,27 +74,6 @@ init =
       }
     , Cmd.none
     )
-
-
-randomPolygon : Generator Polygon
-randomPolygon =
-    let
-        min =
-            -maximumInitialEdgeLength
-
-        max =
-            maximumInitialEdgeLength
-    in
-        Random.map2
-            Polygon
-            (Random.list
-                3
-                (Random.pair
-                    (Random.float min max)
-                    (Random.float min max)
-                )
-            )
-            Random.Color.rgba
 
 
 adjustColor : Color -> Int -> Int -> Int -> Float -> Color
@@ -191,11 +169,11 @@ sometimesMutate polygon =
         ]
 
 
-mutatePolygons : List Polygon -> Generator (List Polygon)
-mutatePolygons polygons =
+mutatePolygons : Image -> Generator Image
+mutatePolygons image =
     let
         listOfGenerators =
-            List.map sometimesMutate polygons
+            List.map sometimesMutate image
     in
         Random.Extra.combine listOfGenerators
 
@@ -235,7 +213,7 @@ type Msg
     | Start
     | RequestCandidateImage
     | StoreUploadedImage (List Int)
-    | UpdateCandidate (List Polygon)
+    | UpdateCandidate Image
     | Sleep
 
 
