@@ -2,6 +2,11 @@
 
 *Warning: this code only works on Retina screens.*
 
+## Demo
+
+![](https://imgur.com/a/agLaV)
+
+Goal image is on the left. The right is our algorithms attempt to reproduce it via a random walk of mutations of polygons.
 
 ## Development
 
