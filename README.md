@@ -6,7 +6,7 @@
 ![a visual demo of the algorithm](https://github.com/r00k/image-evolution/raw/master/demo.gif)
 
 
-Goal image is on the left. The right is our algorithms attempt to reproduce it via a random walk of mutations of polygons.
+Goal image is on the left. The right is our algorithm's attempt to reproduce it via a random walk of mutations of polygons.
 
 ## Development
 
