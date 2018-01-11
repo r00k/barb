@@ -1,10 +1,5 @@
 port module Main exposing (..)
 
--- Todos
--- don't expose everything
--- consistency around maybe/sometimes
--- no magic numbers
-
 import Collage
 import Element
 import Html exposing (..)
