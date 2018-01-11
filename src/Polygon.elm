@@ -1,4 +1,4 @@
-module Polygon exposing (randomPolygon, mutatePolygons, Polygon, Image)
+module Polygon exposing (mutatePolygons, randomInitialImage, Polygon, Image)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -34,6 +34,11 @@ maximumRGBChange =
 maximumAlphaChange : Float
 maximumAlphaChange =
     0.1
+
+
+numberOfPolygons : Int
+numberOfPolygons =
+    125
 
 
 randomPolygon : Generator Polygon
@@ -157,3 +162,8 @@ adjustColor color dr dg db da =
             (clamp 0 255 (rgba.green + dg))
             (clamp 0 255 (rgba.blue + db))
             (clamp 0.0 1.0 (rgba.alpha + da))
+
+
+randomInitialImage : Generator Image
+randomInitialImage =
+    (Random.list numberOfPolygons randomPolygon)

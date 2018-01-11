@@ -1,5 +1,9 @@
 port module Main exposing (..)
 
+-- Todos
+-- don't expose everything
+-- consistency around maybe/sometimes
+
 import Collage
 import Element
 import Html exposing (..)
@@ -26,11 +30,6 @@ type alias Model =
     , imageWidth : Int
     , hasStarted : Bool
     }
-
-
-numberOfPolygons : Int
-numberOfPolygons =
-    125
 
 
 init : ( Model, Cmd Msg )
@@ -102,7 +101,7 @@ update msg model =
                 , imageHeight = 100
                 , imageWidth = 100
               }
-            , Random.generate UpdateCandidate (Random.list numberOfPolygons randomPolygon)
+            , Random.generate UpdateCandidate randomInitialImage
             )
 
         UpdateCandidate image ->
