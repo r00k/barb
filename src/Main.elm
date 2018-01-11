@@ -37,6 +37,11 @@ type alias Pixels =
     List Int
 
 
+imageDimension : Int
+imageDimension =
+    100
+
+
 init : ( Model, Cmd Msg )
 init =
     ( { fittest = []
@@ -45,8 +50,8 @@ init =
       , candidateFitness = 0.0
       , iterations = 0
       , pixelValuesForGoalImage = []
-      , imageHeight = 0
-      , imageWidth = 0
+      , imageHeight = imageDimension
+      , imageWidth = imageDimension
       , hasStarted = False
       }
     , Cmd.none
@@ -66,12 +71,12 @@ checkFitness goalImage candidateImage =
             List.map (\x -> x ^ 2) differences
 
         sumOfSquares =
-            List.foldr (+) 0 squares
+            List.sum squares |> toFloat
 
         maximumDifference =
-            pixelCount * 256 * 256
+            pixelCount * 256 * 256 |> toFloat
     in
-        1 - (toFloat sumOfSquares / toFloat (maximumDifference))
+        1 - (sumOfSquares / maximumDifference)
 
 
 
@@ -125,7 +130,7 @@ update msg model =
                         , iterations = model.iterations + 1
                         , candidateFitness = newCandidateFitness
                       }
-                    , Random.generate UpdateCandidate (mutatePolygons model.candidate)
+                    , Random.generate UpdateCandidate (mutateImage model.candidate)
                     )
                 else
                     ( { model
@@ -133,7 +138,7 @@ update msg model =
                         , candidate = model.fittest
                         , iterations = model.iterations + 1
                       }
-                    , Random.generate UpdateCandidate (mutatePolygons model.fittest)
+                    , Random.generate UpdateCandidate (mutateImage model.fittest)
                     )
 
 

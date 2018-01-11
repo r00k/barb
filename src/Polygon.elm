@@ -1,4 +1,4 @@
-module Polygon exposing (mutatePolygons, randomImage, Polygon, Image)
+module Polygon exposing (mutateImage, randomImage, Polygon, Image)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -78,13 +78,9 @@ randomPolygon =
         Random.Color.rgba
 
 
-mutatePolygons : Image -> Generator Image
-mutatePolygons image =
-    let
-        listOfGenerators =
-            List.map sometimesMutate image
-    in
-        Random.Extra.combine listOfGenerators
+mutateImage : Image -> Generator Image
+mutateImage image =
+    List.map sometimesMutate image |> Random.Extra.combine
 
 
 sometimesMutate : Polygon -> Generator Polygon
