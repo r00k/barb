@@ -75,6 +75,16 @@ randomPolygon =
             Random.Color.rgba
 
 
+mutationChance : Float
+mutationChance =
+    8.0
+
+
+nonMutationChance : Float
+nonMutationChance =
+    100 - mutationChance
+
+
 mutatePolygons : Image -> Generator Image
 mutatePolygons image =
     let
@@ -87,8 +97,8 @@ mutatePolygons image =
 sometimesMutate : Polygon -> Generator Polygon
 sometimesMutate polygon =
     Random.Extra.frequency
-        [ ( 92.0, Random.Extra.constant polygon )
-        , ( 8.0, mutatePolygon polygon )
+        [ ( nonMutationChance, Random.Extra.constant polygon )
+        , ( mutationChance, mutatePolygon polygon )
         ]
 
 
