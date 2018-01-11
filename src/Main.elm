@@ -26,7 +26,7 @@ type alias Model =
     , candidate : Image
     , candidateFitness : Float
     , iterations : Int
-    , imageDataForUploadedImage : List Int
+    , pixelValuesForUploadedImage : List Int
     , imageHeight : Int
     , imageWidth : Int
     , hasStarted : Bool
@@ -40,7 +40,7 @@ init =
       , candidate = []
       , candidateFitness = 0.0
       , iterations = 0
-      , imageDataForUploadedImage = []
+      , pixelValuesForUploadedImage = []
       , imageHeight = 0
       , imageWidth = 0
       , hasStarted = False
@@ -49,8 +49,8 @@ init =
     )
 
 
-checkFitness : ( List Int, List Int ) -> Float
-checkFitness ( uploadedImage, candidateImage ) =
+checkFitness : List Int -> List Int -> Float
+checkFitness uploadedImage candidateImage =
     let
         pixelCount =
             List.length uploadedImage
@@ -68,11 +68,6 @@ checkFitness ( uploadedImage, candidateImage ) =
             pixelCount * 256 * 256
     in
         1 - (toFloat sumOfSquares / toFloat (maximumDifference))
-
-
-shiftList : List a -> a -> List a
-shiftList existingList newListItem =
-    List.append (List.drop 1 existingList) [ newListItem ]
 
 
 
@@ -98,7 +93,7 @@ update msg model =
 
         StoreUploadedImage image ->
             ( { model
-                | imageDataForUploadedImage = image
+                | pixelValuesForUploadedImage = image
                 , imageHeight = 100
                 , imageWidth = 100
               }
@@ -117,7 +112,7 @@ update msg model =
         CalculateFitness candidateImage ->
             let
                 newCandidateFitness =
-                    checkFitness ( model.imageDataForUploadedImage, candidateImage )
+                    checkFitness model.pixelValuesForUploadedImage candidateImage
             in
                 if newCandidateFitness > model.fittestFitness then
                     ( { model
@@ -157,11 +152,6 @@ displayablePercentage number =
             Exts.Float.roundTo 2 (number * 100)
     in
         (toString rounded) ++ "%"
-
-
-exaggeratePercentage : Float -> Float
-exaggeratePercentage number =
-    (((number * 100) - 90) * 10) / 100
 
 
 renderStartAndInfo : Model -> Html Msg

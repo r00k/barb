@@ -26,7 +26,7 @@ type alias Vertices =
 
 maximumInitialEdgeLength : Float
 maximumInitialEdgeLength =
-    15
+    25
 
 
 maximumVertexDisplacement : Float
@@ -51,28 +51,7 @@ numberOfPolygons =
 
 numberOfPolygonVertices : Int
 numberOfPolygonVertices =
-    3
-
-
-randomPolygon : Generator Polygon
-randomPolygon =
-    let
-        min =
-            -maximumInitialEdgeLength
-
-        max =
-            maximumInitialEdgeLength
-    in
-        Random.map2
-            Polygon
-            (Random.list
-                numberOfPolygonVertices
-                (Random.pair
-                    (Random.float min max)
-                    (Random.float min max)
-                )
-            )
-            Random.Color.rgba
+    4
 
 
 mutationChance : Float
@@ -83,6 +62,20 @@ mutationChance =
 nonMutationChance : Float
 nonMutationChance =
     100 - mutationChance
+
+
+randomPolygon : Generator Polygon
+randomPolygon =
+    Random.map2
+        Polygon
+        (Random.list
+            numberOfPolygonVertices
+            (Random.pair
+                (Random.float -maximumInitialEdgeLength maximumInitialEdgeLength)
+                (Random.float -maximumInitialEdgeLength maximumInitialEdgeLength)
+            )
+        )
+        Random.Color.rgba
 
 
 mutatePolygons : Image -> Generator Image
@@ -144,13 +137,12 @@ maybeMutateColor color =
 
 sometimesMutateVertex : Vertex -> Generator Vertex
 sometimesMutateVertex ( x, y ) =
-    -- TODO: would be nice to also just pick x or y.
     let
         min =
-            -maximumVertexDisplacement
+            -maximumVertexDisplacement / 2
 
         max =
-            maximumVertexDisplacement
+            maximumVertexDisplacement / 2
 
         vertexGenerator =
             Random.map2
