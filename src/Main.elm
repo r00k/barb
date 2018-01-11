@@ -3,6 +3,7 @@ port module Main exposing (..)
 -- Todos
 -- don't expose everything
 -- consistency around maybe/sometimes
+-- no magic numbers
 
 import Collage
 import Element
@@ -101,7 +102,7 @@ update msg model =
                 , imageHeight = 100
                 , imageWidth = 100
               }
-            , Random.generate UpdateCandidate randomInitialImage
+            , Random.generate UpdateCandidate randomImage
             )
 
         UpdateCandidate image ->

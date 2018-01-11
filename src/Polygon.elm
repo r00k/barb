@@ -1,4 +1,4 @@
-module Polygon exposing (mutatePolygons, randomInitialImage, Polygon, Image)
+module Polygon exposing (mutatePolygons, randomImage, Polygon, Image)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -6,14 +6,22 @@ import Random.Color
 import Random.Extra
 
 
+type alias Image =
+    List Polygon
+
+
 type alias Polygon =
-    { vertices : List ( Float, Float )
+    { vertices : Vertices
     , color : Color
     }
 
 
-type alias Image =
-    List Polygon
+type alias Vertex =
+    ( Float, Float )
+
+
+type alias Vertices =
+    List Vertex
 
 
 maximumInitialEdgeLength : Float
@@ -38,7 +46,12 @@ maximumAlphaChange =
 
 numberOfPolygons : Int
 numberOfPolygons =
-    125
+    75
+
+
+numberOfPolygonVertices : Int
+numberOfPolygonVertices =
+    3
 
 
 randomPolygon : Generator Polygon
@@ -53,7 +66,7 @@ randomPolygon =
         Random.map2
             Polygon
             (Random.list
-                3
+                numberOfPolygonVertices
                 (Random.pair
                     (Random.float min max)
                     (Random.float min max)
@@ -81,23 +94,13 @@ sometimesMutate polygon =
 
 mutatePolygon : Polygon -> Generator Polygon
 mutatePolygon polygon =
-    Random.Extra.frequency
-        [ ( 50.0
-          , Random.map2
-                Polygon
-                (maybeMutateVertices polygon.vertices)
-                (Random.Extra.constant polygon.color)
-          )
-        , ( 50.0
-          , Random.map2
-                Polygon
-                (Random.Extra.constant polygon.vertices)
-                (maybeMutateColor polygon.color)
-          )
-        ]
+    Random.map2
+        Polygon
+        (maybeMutateVertices polygon.vertices)
+        (maybeMutateColor polygon.color)
 
 
-maybeMutateVertices : List ( Float, Float ) -> Generator (List ( Float, Float ))
+maybeMutateVertices : Vertices -> Generator Vertices
 maybeMutateVertices vertices =
     let
         listOfGenerators =
@@ -129,7 +132,7 @@ maybeMutateColor color =
             ]
 
 
-sometimesMutateVertex : ( Float, Float ) -> Generator ( Float, Float )
+sometimesMutateVertex : Vertex -> Generator Vertex
 sometimesMutateVertex ( x, y ) =
     -- TODO: would be nice to also just pick x or y.
     let
@@ -164,6 +167,6 @@ adjustColor color dr dg db da =
             (clamp 0.0 1.0 (rgba.alpha + da))
 
 
-randomInitialImage : Generator Image
-randomInitialImage =
+randomImage : Generator Image
+randomImage =
     (Random.list numberOfPolygons randomPolygon)
