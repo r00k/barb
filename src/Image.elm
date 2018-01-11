@@ -36,7 +36,7 @@ maximumVertexDisplacement =
 
 maximumRGBChange : Int
 maximumRGBChange =
-    25
+    20
 
 
 maximumAlphaChange : Float
@@ -46,7 +46,7 @@ maximumAlphaChange =
 
 numberOfPolygons : Int
 numberOfPolygons =
-    75
+    50
 
 
 numberOfPolygonVertices : Int
@@ -56,7 +56,7 @@ numberOfPolygonVertices =
 
 mutationChance : Float
 mutationChance =
-    8.0
+    9.0
 
 
 nonMutationChance : Float
@@ -71,16 +71,22 @@ blank =
 
 randomPolygon : Generator Polygon
 randomPolygon =
-    Random.map2
-        Polygon
-        (Random.list
-            numberOfPolygonVertices
-            (Random.pair
-                (Random.float -maximumInitialEdgeLength maximumInitialEdgeLength)
-                (Random.float -maximumInitialEdgeLength maximumInitialEdgeLength)
-            )
-        )
-        Random.Color.rgba
+    Random.map2 Polygon vertices Random.Color.rgba
+
+
+vertices : Generator (List Vertex)
+vertices =
+    Random.list numberOfPolygonVertices vertex
+
+
+vertex : Generator Vertex
+vertex =
+    Random.pair position position
+
+
+position : Generator Float
+position =
+    Random.float -maximumInitialEdgeLength maximumInitialEdgeLength
 
 
 mutate : Image -> Generator Image

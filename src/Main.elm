@@ -134,6 +134,24 @@ updateFittestCandidate candidatePixels model =
 -- VIEW
 
 
+view : Model -> Html Msg
+view model =
+    div [ class "images" ]
+        [ div
+            [ class "images-image_container" ]
+            [ img [ src "img/quarters.jpg", class "images-original_image_container-image" ] [] ]
+        , div
+            [ class "images-image_container" ]
+            [ div
+                [ applyGoalImageSize model
+                , class "images-image_container-generated_image_canvas class images-image_container-force_size_fill"
+                ]
+                [ drawCandidate model ]
+            , renderStartAndInfo model
+            ]
+        ]
+
+
 applyGoalImageSize : Model -> Attribute msg
 applyGoalImageSize model =
     style
@@ -154,38 +172,30 @@ displayablePercentage number =
 renderStartAndInfo : Model -> Html Msg
 renderStartAndInfo model =
     if model.hasStarted then
-        div
-            [ class "images-image_container-info_tray" ]
-            [ div
-                [ class "images-image_container-info_tray-number" ]
-                [ text <| toString model.iterations ]
-            , div
-                [ class "images-image_container-info_tray-number" ]
-                [ text <| displayablePercentage model.bestCandidateFitness ]
-            ]
+        renderInfo model
     else
-        div
-            [ Html.Events.onClick Start
-            , class "images-image_container-info_tray images-image_container-info_tray--button"
-            ]
-            [ text "Start" ]
+        renderStart
 
 
-view : Model -> Html Msg
-view model =
-    div [ class "images" ]
+renderStart : Html Msg
+renderStart =
+    div
+        [ Html.Events.onClick Start
+        , class "images-image_container-info_tray images-image_container-info_tray--button"
+        ]
+        [ text "Start" ]
+
+
+renderInfo : Model -> Html Msg
+renderInfo model =
+    div
+        [ class "images-image_container-info_tray" ]
         [ div
-            [ class "images-image_container" ]
-            [ img [ src "img/quarters.jpg", class "images-original_image_container-image" ] [] ]
+            [ class "images-image_container-info_tray-number" ]
+            [ text <| toString model.iterations ]
         , div
-            [ class "images-image_container" ]
-            [ div
-                [ applyGoalImageSize model
-                , class "images-image_container-generated_image_canvas class images-image_container-force_size_fill"
-                ]
-                [ drawCandidate model ]
-            , renderStartAndInfo model
-            ]
+            [ class "images-image_container-info_tray-number" ]
+            [ text <| displayablePercentage model.bestCandidateFitness ]
         ]
 
 
