@@ -1,4 +1,4 @@
-module Image exposing (mutate, random, blank, Polygon, Image)
+module Image exposing (mutate, random, blank, Polygon, Image, Pixels)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -20,6 +20,10 @@ type alias Vertex =
     ( Float, Float )
 
 
+type alias Pixels =
+    List Int
+
+
 maximumInitialEdgeLength : Float
 maximumInitialEdgeLength =
     25
@@ -37,7 +41,7 @@ maximumRGBChange =
 
 maximumAlphaChange : Float
 maximumAlphaChange =
-    0.1
+    0.2
 
 
 numberOfPolygons : Int

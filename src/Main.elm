@@ -5,7 +5,7 @@ import Element
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events
-import Image exposing (Polygon, Image)
+import Image exposing (Polygon, Image, Pixels)
 import Random
 import Task
 import Process
@@ -26,10 +26,6 @@ type alias Model =
     , imageWidth : Int
     , hasStarted : Bool
     }
-
-
-type alias Pixels =
-    List Int
 
 
 imageDimension : Int
@@ -80,7 +76,6 @@ type Msg
     | RequestCandidateImage
     | StoreGoalImage Pixels
     | UpdateCandidate Image
-    | Sleep
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -99,36 +94,40 @@ update msg model =
             )
 
         UpdateCandidate image ->
-            update Sleep { model | candidate = image }
-
-        Sleep ->
-            ( model, Task.perform (always RequestCandidateImage) (Process.sleep 0) )
+            ( { model | candidate = image }
+            , Task.perform (always RequestCandidateImage) (Process.sleep 0)
+            )
 
         RequestCandidateImage ->
             ( model, requestCandidateImage () )
 
-        CalculateFitness candidateImage ->
-            let
-                newCandidateFitness =
-                    checkFitness model.pixelValuesForGoalImage candidateImage
-            in
-                if newCandidateFitness > model.bestCandidateFitness then
-                    ( { model
-                        | bestCandidate = model.candidate
-                        , bestCandidateFitness = newCandidateFitness
-                        , iterations = model.iterations + 1
-                        , candidateFitness = newCandidateFitness
-                      }
-                    , Random.generate UpdateCandidate (Image.mutate model.candidate)
-                    )
-                else
-                    ( { model
-                        | candidateFitness = newCandidateFitness
-                        , candidate = model.bestCandidate
-                        , iterations = model.iterations + 1
-                      }
-                    , Random.generate UpdateCandidate (Image.mutate model.bestCandidate)
-                    )
+        CalculateFitness candidatePixels ->
+            updateFittestCandidate candidatePixels model
+
+
+updateFittestCandidate : Pixels -> Model -> ( Model, Cmd Msg )
+updateFittestCandidate candidatePixels model =
+    let
+        newCandidateFitness =
+            checkFitness model.pixelValuesForGoalImage candidatePixels
+    in
+        if newCandidateFitness > model.bestCandidateFitness then
+            ( { model
+                | bestCandidate = model.candidate
+                , bestCandidateFitness = newCandidateFitness
+                , iterations = model.iterations + 1
+                , candidateFitness = newCandidateFitness
+              }
+            , Random.generate UpdateCandidate (Image.mutate model.candidate)
+            )
+        else
+            ( { model
+                | candidateFitness = newCandidateFitness
+                , candidate = model.bestCandidate
+                , iterations = model.iterations + 1
+              }
+            , Random.generate UpdateCandidate (Image.mutate model.bestCandidate)
+            )
 
 
 
