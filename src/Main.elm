@@ -9,9 +9,9 @@ import Collage
 import Element
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Polygon exposing (..)
-import Random exposing (Generator)
+import Html.Events
+import Image exposing (Polygon, Image)
+import Random
 import Task
 import Process
 import Exts.Float
@@ -104,7 +104,7 @@ update msg model =
             ( { model
                 | pixelValuesForGoalImage = pixelValues
               }
-            , Random.generate UpdateCandidate randomImage
+            , Random.generate UpdateCandidate Image.random
             )
 
         UpdateCandidate image ->
@@ -128,7 +128,7 @@ update msg model =
                         , iterations = model.iterations + 1
                         , candidateFitness = newCandidateFitness
                       }
-                    , Random.generate UpdateCandidate (mutateImage model.candidate)
+                    , Random.generate UpdateCandidate (Image.mutate model.candidate)
                     )
                 else
                     ( { model
@@ -136,7 +136,7 @@ update msg model =
                         , candidate = model.bestCandidate
                         , iterations = model.iterations + 1
                       }
-                    , Random.generate UpdateCandidate (mutateImage model.bestCandidate)
+                    , Random.generate UpdateCandidate (Image.mutate model.bestCandidate)
                     )
 
 

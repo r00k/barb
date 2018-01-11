@@ -1,4 +1,4 @@
-module Polygon exposing (mutateImage, randomImage, Polygon, Image)
+module Image exposing (mutate, random, Polygon, Image)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -78,8 +78,8 @@ randomPolygon =
         Random.Color.rgba
 
 
-mutateImage : Image -> Generator Image
-mutateImage image =
+mutate : Image -> Generator Image
+mutate image =
     List.map sometimesMutate image |> Random.Extra.combine
 
 
@@ -165,6 +165,6 @@ adjustColor color dr dg db da =
             (clamp 0.0 1.0 (rgba.alpha + da))
 
 
-randomImage : Generator Image
-randomImage =
+random : Generator Image
+random =
     (Random.list numberOfPolygons randomPolygon)
