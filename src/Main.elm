@@ -6,7 +6,7 @@ import Element
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Polygon
+import Polygon exposing (..)
 import Random exposing (Generator)
 import Random.Color
 import Random.Extra
@@ -38,11 +38,6 @@ type alias Image =
 numberOfPolygons : Int
 numberOfPolygons =
     125
-
-
-maximumInitialEdgeLength : Float
-maximumInitialEdgeLength =
-    15
 
 
 maximumVertexDisplacement : Float
