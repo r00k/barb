@@ -26,7 +26,7 @@ type alias Model =
     , candidate : Image
     , candidateFitness : Float
     , iterations : Int
-    , pixelValuesForUploadedImage : Pixels
+    , pixelValuesForGoalImage : Pixels
     , imageHeight : Int
     , imageWidth : Int
     , hasStarted : Bool
@@ -44,7 +44,7 @@ init =
       , candidate = []
       , candidateFitness = 0.0
       , iterations = 0
-      , pixelValuesForUploadedImage = []
+      , pixelValuesForGoalImage = []
       , imageHeight = 0
       , imageWidth = 0
       , hasStarted = False
@@ -82,7 +82,7 @@ type Msg
     = CalculateFitness Pixels
     | Start
     | RequestCandidateImage
-    | StoreUploadedImage Pixels
+    | StoreGoalImage Pixels
     | UpdateCandidate Image
     | Sleep
 
@@ -95,9 +95,9 @@ update msg model =
             , requestGoalImage ""
             )
 
-        StoreUploadedImage image ->
+        StoreGoalImage image ->
             ( { model
-                | pixelValuesForUploadedImage = image
+                | pixelValuesForGoalImage = image
                 , imageHeight = 100
                 , imageWidth = 100
               }
@@ -116,7 +116,7 @@ update msg model =
         CalculateFitness candidateImage ->
             let
                 newCandidateFitness =
-                    checkFitness model.pixelValuesForUploadedImage candidateImage
+                    checkFitness model.pixelValuesForGoalImage candidateImage
             in
                 if newCandidateFitness > model.fittestFitness then
                     ( { model
@@ -141,8 +141,8 @@ update msg model =
 -- VIEW
 
 
-applyUploadedImageSize : Model -> Attribute msg
-applyUploadedImageSize model =
+applyGoalImageSize : Model -> Attribute msg
+applyGoalImageSize model =
     style
         [ ( "width", (toString model.imageWidth) ++ "px" )
         , ( "height", (toString model.imageHeight) ++ "px" )
@@ -187,7 +187,7 @@ view model =
         , div
             [ class "images-image_container" ]
             [ div
-                [ applyUploadedImageSize model
+                [ applyGoalImageSize model
                 , class "images-image_container-generated_image_canvas class images-image_container-force_size_fill"
                 ]
                 [ drawCandidate model ]
@@ -218,7 +218,7 @@ drawPolygon polygon =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ goalImage StoreUploadedImage
+        [ goalImage StoreGoalImage
         , candidateImage CalculateFitness
         ]
 
