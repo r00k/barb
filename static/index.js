@@ -12,7 +12,7 @@ var setImageDimensions = function(img) {
 
 var imageDimensions = {};
 
-var getUploadedImageData = function() {
+var getGoalImageData = function() {
   var canvas = document.createElement('canvas');
   var context = canvas.getContext('2d');
   var img = document.getElementsByClassName('images-original_image_container-image')[0];
@@ -28,9 +28,9 @@ var getGeneratedImageData = function() {
   return canvas.getContext('2d').getImageData(0, 0, imageDimensions.width, imageDimensions.height).data;
 };
 
-app.ports.requestUploadedImage.subscribe(function(_) {
-  var uploadedImageData = Array.from(getUploadedImageData());
-  app.ports.uploadedImage.send(uploadedImageData)
+app.ports.requestGoalImage.subscribe(function(_) {
+  var goalImageData = Array.from(getGoalImageData());
+  app.ports.goalImage.send(goalImageData)
 });
 
 app.ports.requestCandidateImage.subscribe(function(_) {

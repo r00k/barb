@@ -26,11 +26,15 @@ type alias Model =
     , candidate : Image
     , candidateFitness : Float
     , iterations : Int
-    , pixelValuesForUploadedImage : List Int
+    , pixelValuesForUploadedImage : Pixels
     , imageHeight : Int
     , imageWidth : Int
     , hasStarted : Bool
     }
+
+
+type alias Pixels =
+    List Int
 
 
 init : ( Model, Cmd Msg )
@@ -49,14 +53,14 @@ init =
     )
 
 
-checkFitness : List Int -> List Int -> Float
-checkFitness uploadedImage candidateImage =
+checkFitness : Pixels -> Pixels -> Float
+checkFitness goalImage candidateImage =
     let
         pixelCount =
-            List.length uploadedImage
+            List.length goalImage
 
         differences =
-            List.map2 (-) uploadedImage candidateImage
+            List.map2 (-) goalImage candidateImage
 
         squares =
             List.map (\x -> x ^ 2) differences
@@ -75,10 +79,10 @@ checkFitness uploadedImage candidateImage =
 
 
 type Msg
-    = CalculateFitness (List Int)
+    = CalculateFitness Pixels
     | Start
     | RequestCandidateImage
-    | StoreUploadedImage (List Int)
+    | StoreUploadedImage Pixels
     | UpdateCandidate Image
     | Sleep
 
@@ -88,7 +92,7 @@ update msg model =
     case msg of
         Start ->
             ( { model | hasStarted = True }
-            , requestUploadedImage ""
+            , requestGoalImage ""
             )
 
         StoreUploadedImage image ->
@@ -214,7 +218,7 @@ drawPolygon polygon =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ uploadedImage StoreUploadedImage
+        [ goalImage StoreUploadedImage
         , candidateImage CalculateFitness
         ]
 
@@ -229,13 +233,13 @@ main =
         }
 
 
-port requestUploadedImage : String -> Cmd msg
+port requestGoalImage : String -> Cmd msg
 
 
-port uploadedImage : (List Int -> msg) -> Sub msg
+port goalImage : (Pixels -> msg) -> Sub msg
 
 
 port requestCandidateImage : String -> Cmd msg
 
 
-port candidateImage : (List Int -> msg) -> Sub msg
+port candidateImage : (Pixels -> msg) -> Sub msg
