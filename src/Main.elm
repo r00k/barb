@@ -21,8 +21,8 @@ import Exts.Float
 
 
 type alias Model =
-    { fittest : Image
-    , fittestFitness : Float
+    { bestCandidate : Image
+    , bestCandidateFitness : Float
     , candidate : Image
     , candidateFitness : Float
     , iterations : Int
@@ -44,8 +44,8 @@ imageDimension =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { fittest = []
-      , fittestFitness = 0.0
+    ( { bestCandidate = []
+      , bestCandidateFitness = 0.0
       , candidate = []
       , candidateFitness = 0.0
       , iterations = 0
@@ -97,14 +97,12 @@ update msg model =
     case msg of
         Start ->
             ( { model | hasStarted = True }
-            , requestGoalImage ""
+            , requestGoalImage ()
             )
 
-        StoreGoalImage image ->
+        StoreGoalImage pixelValues ->
             ( { model
-                | pixelValuesForGoalImage = image
-                , imageHeight = 100
-                , imageWidth = 100
+                | pixelValuesForGoalImage = pixelValues
               }
             , Random.generate UpdateCandidate randomImage
             )
@@ -116,17 +114,17 @@ update msg model =
             ( model, Task.perform (always RequestCandidateImage) (Process.sleep 0) )
 
         RequestCandidateImage ->
-            ( model, requestCandidateImage "" )
+            ( model, requestCandidateImage () )
 
         CalculateFitness candidateImage ->
             let
                 newCandidateFitness =
                     checkFitness model.pixelValuesForGoalImage candidateImage
             in
-                if newCandidateFitness > model.fittestFitness then
+                if newCandidateFitness > model.bestCandidateFitness then
                     ( { model
-                        | fittest = model.candidate
-                        , fittestFitness = newCandidateFitness
+                        | bestCandidate = model.candidate
+                        , bestCandidateFitness = newCandidateFitness
                         , iterations = model.iterations + 1
                         , candidateFitness = newCandidateFitness
                       }
@@ -135,10 +133,10 @@ update msg model =
                 else
                     ( { model
                         | candidateFitness = newCandidateFitness
-                        , candidate = model.fittest
+                        , candidate = model.bestCandidate
                         , iterations = model.iterations + 1
                       }
-                    , Random.generate UpdateCandidate (mutateImage model.fittest)
+                    , Random.generate UpdateCandidate (mutateImage model.bestCandidate)
                     )
 
 
@@ -173,7 +171,7 @@ renderStartAndInfo model =
                 [ text <| toString model.iterations ]
             , div
                 [ class "images-image_container-info_tray-number" ]
-                [ text <| displayablePercentage model.fittestFitness ]
+                [ text <| displayablePercentage model.bestCandidateFitness ]
             ]
     else
         div
@@ -238,13 +236,13 @@ main =
         }
 
 
-port requestGoalImage : String -> Cmd msg
+port requestGoalImage : () -> Cmd msg
 
 
 port goalImage : (Pixels -> msg) -> Sub msg
 
 
-port requestCandidateImage : String -> Cmd msg
+port requestCandidateImage : () -> Cmd msg
 
 
 port candidateImage : (Pixels -> msg) -> Sub msg
