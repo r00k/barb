@@ -1,15 +1,12 @@
 port module Main exposing (..)
 
 import Collage
-import Color exposing (Color)
 import Element
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Polygon exposing (..)
 import Random exposing (Generator)
-import Random.Color
-import Random.Extra
 import Task
 import Process
 import Exts.Float
@@ -31,28 +28,9 @@ type alias Model =
     }
 
 
-type alias Image =
-    List Polygon
-
-
 numberOfPolygons : Int
 numberOfPolygons =
     125
-
-
-maximumVertexDisplacement : Float
-maximumVertexDisplacement =
-    15
-
-
-maximumRGBChange : Int
-maximumRGBChange =
-    25
-
-
-maximumAlphaChange : Float
-maximumAlphaChange =
-    0.1
 
 
 init : ( Model, Cmd Msg )
@@ -69,108 +47,6 @@ init =
       }
     , Cmd.none
     )
-
-
-adjustColor : Color -> Int -> Int -> Int -> Float -> Color
-adjustColor color dr dg db da =
-    let
-        rgba =
-            Color.toRgb color
-    in
-        Color.rgba
-            (clamp 0 255 (rgba.red + dr))
-            (clamp 0 255 (rgba.green + dg))
-            (clamp 0 255 (rgba.blue + db))
-            (clamp 0.0 1.0 (rgba.alpha + da))
-
-
-maybeMutateColor : Color -> Generator Color
-maybeMutateColor color =
-    let
-        floatGenerator =
-            Random.float -maximumAlphaChange maximumAlphaChange
-
-        intGenerator =
-            Random.int -maximumRGBChange maximumRGBChange
-
-        colorGenerator =
-            Random.map4
-                (adjustColor color)
-                intGenerator
-                intGenerator
-                intGenerator
-                floatGenerator
-    in
-        Random.Extra.frequency
-            [ ( 50.0, Random.Extra.constant color )
-            , ( 50.0, colorGenerator )
-            ]
-
-
-sometimesMutateVertex : ( Float, Float ) -> Generator ( Float, Float )
-sometimesMutateVertex ( x, y ) =
-    -- TODO: would be nice to also just pick x or y.
-    let
-        min =
-            -maximumVertexDisplacement
-
-        max =
-            maximumVertexDisplacement
-
-        vertexGenerator =
-            Random.map2
-                (\dx dy -> ( x + dx, y + dy ))
-                (Random.float min max)
-                (Random.float min max)
-    in
-        Random.Extra.frequency
-            [ ( 50.0, Random.Extra.constant ( x, y ) )
-            , ( 50.0, vertexGenerator )
-            ]
-
-
-maybeMutateVertices : List ( Float, Float ) -> Generator (List ( Float, Float ))
-maybeMutateVertices vertices =
-    let
-        listOfGenerators =
-            List.map sometimesMutateVertex vertices
-    in
-        Random.Extra.combine listOfGenerators
-
-
-mutatePolygon : Polygon -> Generator Polygon
-mutatePolygon polygon =
-    Random.Extra.frequency
-        [ ( 50.0
-          , Random.map2
-                Polygon
-                (maybeMutateVertices polygon.vertices)
-                (Random.Extra.constant polygon.color)
-          )
-        , ( 50.0
-          , Random.map2
-                Polygon
-                (Random.Extra.constant polygon.vertices)
-                (maybeMutateColor polygon.color)
-          )
-        ]
-
-
-sometimesMutate : Polygon -> Generator Polygon
-sometimesMutate polygon =
-    Random.Extra.frequency
-        [ ( 92.0, Random.Extra.constant polygon )
-        , ( 8.0, mutatePolygon polygon )
-        ]
-
-
-mutatePolygons : Image -> Generator Image
-mutatePolygons image =
-    let
-        listOfGenerators =
-            List.map sometimesMutate image
-    in
-        Random.Extra.combine listOfGenerators
 
 
 checkFitness : ( List Int, List Int ) -> Float
