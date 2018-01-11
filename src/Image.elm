@@ -1,4 +1,4 @@
-module Image exposing (mutate, random, Polygon, Image)
+module Image exposing (mutate, random, blank, Polygon, Image)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -11,17 +11,13 @@ type alias Image =
 
 
 type alias Polygon =
-    { vertices : Vertices
+    { vertices : List Vertex
     , color : Color
     }
 
 
 type alias Vertex =
     ( Float, Float )
-
-
-type alias Vertices =
-    List Vertex
 
 
 maximumInitialEdgeLength : Float
@@ -64,6 +60,11 @@ nonMutationChance =
     100 - mutationChance
 
 
+blank : Image
+blank =
+    []
+
+
 randomPolygon : Generator Polygon
 randomPolygon =
     Random.map2
@@ -99,13 +100,10 @@ mutatePolygon polygon =
         (maybeMutateColor polygon.color)
 
 
-maybeMutateVertices : Vertices -> Generator Vertices
+maybeMutateVertices : List Vertex -> Generator (List Vertex)
 maybeMutateVertices vertices =
-    let
-        listOfGenerators =
-            List.map sometimesMutateVertex vertices
-    in
-        Random.Extra.combine listOfGenerators
+    List.map sometimesMutateVertex vertices
+        |> Random.Extra.combine
 
 
 maybeMutateColor : Color -> Generator Color

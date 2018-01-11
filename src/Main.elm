@@ -39,9 +39,9 @@ imageDimension =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { bestCandidate = []
+    ( { bestCandidate = Image.blank
       , bestCandidateFitness = 0.0
-      , candidate = []
+      , candidate = Image.blank
       , candidateFitness = 0.0
       , iterations = 0
       , pixelValuesForGoalImage = []
@@ -56,22 +56,18 @@ init =
 checkFitness : Pixels -> Pixels -> Float
 checkFitness goalImage candidateImage =
     let
-        pixelCount =
-            List.length goalImage
-
-        differences =
-            List.map2 (-) goalImage candidateImage
-
-        squares =
-            List.map (\x -> x ^ 2) differences
-
         sumOfSquares =
-            List.sum squares |> toFloat
-
-        maximumDifference =
-            pixelCount * 256 * 256 |> toFloat
+            List.map2 (-) goalImage candidateImage
+                |> List.map (\x -> x ^ 2)
+                |> List.sum
+                |> toFloat
     in
-        1 - (sumOfSquares / maximumDifference)
+        1 - (sumOfSquares / maximumPixelDifference)
+
+
+maximumPixelDifference : Float
+maximumPixelDifference =
+    imageDimension * imageDimension * 256 * 256 |> toFloat
 
 
 
