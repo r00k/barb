@@ -1,4 +1,4 @@
-module Image exposing (mutate, random, blank, Polygon, Image, Pixels)
+module Image exposing (blank, random, mutate, Polygon, Image, Pixels)
 
 import Color exposing (Color)
 import Random exposing (Generator)
@@ -69,6 +69,16 @@ blank =
     []
 
 
+random : Generator Image
+random =
+    (Random.list numberOfPolygons randomPolygon)
+
+
+mutate : Image -> Generator Image
+mutate image =
+    List.map sometimesMutate image |> Random.Extra.combine
+
+
 randomPolygon : Generator Polygon
 randomPolygon =
     Random.map2 Polygon vertices Random.Color.rgba
@@ -87,11 +97,6 @@ vertex =
 position : Generator Float
 position =
     Random.float -maximumInitialEdgeLength maximumInitialEdgeLength
-
-
-mutate : Image -> Generator Image
-mutate image =
-    List.map sometimesMutate image |> Random.Extra.combine
 
 
 sometimesMutate : Polygon -> Generator Polygon
@@ -118,46 +123,30 @@ maybeMutateVertices vertices =
 
 maybeMutateColor : Color -> Generator Color
 maybeMutateColor color =
-    let
-        floatGenerator =
-            Random.float -maximumAlphaChange maximumAlphaChange
-
-        intGenerator =
-            Random.int -maximumRGBChange maximumRGBChange
-
-        colorGenerator =
-            Random.map4
-                (adjustColor color)
-                intGenerator
-                intGenerator
-                intGenerator
-                floatGenerator
-    in
-        Random.Extra.frequency
-            [ ( 50.0, Random.Extra.constant color )
-            , ( 50.0, colorGenerator )
-            ]
+    Random.Extra.frequency
+        [ ( 50.0, Random.Extra.constant color )
+        , ( 50.0, mutateColor color )
+        ]
 
 
-sometimesMutateVertex : Vertex -> Generator Vertex
-sometimesMutateVertex ( x, y ) =
-    let
-        min =
-            -maximumVertexDisplacement / 2
+mutateColor : Color -> Generator Color
+mutateColor color =
+    Random.map4
+        (adjustColor color)
+        rgbChange
+        rgbChange
+        rgbChange
+        alphaChange
 
-        max =
-            maximumVertexDisplacement / 2
 
-        vertexGenerator =
-            Random.map2
-                (\dx dy -> ( x + dx, y + dy ))
-                (Random.float min max)
-                (Random.float min max)
-    in
-        Random.Extra.frequency
-            [ ( 50.0, Random.Extra.constant ( x, y ) )
-            , ( 50.0, vertexGenerator )
-            ]
+alphaChange : Generator Float
+alphaChange =
+    Random.float -maximumAlphaChange maximumAlphaChange
+
+
+rgbChange : Generator Int
+rgbChange =
+    Random.int -maximumRGBChange maximumRGBChange
 
 
 adjustColor : Color -> Int -> Int -> Int -> Float -> Color
@@ -173,6 +162,28 @@ adjustColor color dr dg db da =
             (clamp 0.0 1.0 (rgba.alpha + da))
 
 
-random : Generator Image
-random =
-    (Random.list numberOfPolygons randomPolygon)
+sometimesMutateVertex : Vertex -> Generator Vertex
+sometimesMutateVertex vertex =
+    Random.Extra.frequency
+        [ ( 50.0, Random.Extra.constant vertex )
+        , ( 50.0, mutateVertex vertex )
+        ]
+
+
+mutateVertex : Vertex -> Generator Vertex
+mutateVertex vertex =
+    Random.map3
+        displace
+        displacement
+        displacement
+        (Random.Extra.constant vertex)
+
+
+displace : Float -> Float -> Vertex -> Vertex
+displace dx dy ( x, y ) =
+    ( x + dx, y + dy )
+
+
+displacement : Generator Float
+displacement =
+    Random.float (-maximumVertexDisplacement / 2) (maximumVertexDisplacement / 2)
